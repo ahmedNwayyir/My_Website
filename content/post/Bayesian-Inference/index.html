@@ -1,0 +1,356 @@
+---
+title: Bayesian Inference
+author: Ahmed Nwayyir
+date: '2020-04-14'
+slug: bayesian-inference
+categories:
+  - R
+  - Bayesian Learning
+tags:
+  - R
+  - Bayesian Learning
+subtitle: ''
+summary: ''
+authors: []
+lastmod: '2020-07-26T18:33:37+02:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+header-includes: 
+  \usepackage{xcolor} 
+  \usepackage{float}
+---
+
+<script src="/rmarkdown-libs/header-attrs/header-attrs.js"></script>
+
+
+<div id="bernoulli-again." class="section level1">
+<h1><em>Bernoulli … again.</em></h1>
+<p>Let <span class="math inline">\(y_1, ..., y_n | \theta \sim \text{Bern}(\theta)\)</span>, and assume that you have obtained a sample with <span class="math inline">\(s = 5\)</span> successes in <span class="math inline">\(n = 20\)</span> trials. Assume a <span class="math inline">\(\text{Beta}(\alpha_0, \beta_0)\)</span> prior for <span class="math inline">\(\theta\)</span> and let <span class="math inline">\(\alpha_0 = \beta_0 = 2\)</span>.</p>
+<ol style="list-style-type: lower-alpha">
+<li>Draw random numbers from the posterior distribution <span class="math inline">\(\theta|y \sim \text{Beta}(\alpha_0 + s, \beta_0 + f), y = (y_1,...,y_n)\)</span>, and verify that the posterior mean and standard deviation converges to the true values as the number of random draws grows large.</li>
+</ol>
+<p style="color:#00007D;">
+<strong>Answer:</strong>
+</p>
+Expected Value of Mean for the Beta Distribution
+</p>
+<p><span class="math display">\[\color{mycolor}{E[X] = \frac{\alpha}{\alpha + \beta}}\]</span></p>
+<p style="color:#00007D;">
+And expected value of Standard Deviation:
+</p>
+<p><span class="math display">\[sd[X] = \sqrt{\frac{\alpha \cdot \beta}{(\alpha + \beta)^2 \cdot (\alpha + \beta + 1)}}\]</span></p>
+<pre class="r"><code>######################################################################################
+## Bernoulli ... again.
+######################################################################################
+
+## A
+n &lt;- 20
+s &lt;- 5
+f &lt;- n - s
+a_0 &lt;- b_0 &lt;- 2
+a_post &lt;- a_0 + s
+b_post &lt;- b_0 + f
+
+post_mean &lt;- (s+2) / (s+f+4)
+post_sd   &lt;- sqrt((a_post * b_post) / (((a_post+b_post)^2) * (a_post+b_post+1)))
+
+sample_stats &lt;- function(n, alpha, beta){
+  stats &lt;- data.frame(0,n,3)
+  colnames(stats) &lt;- c(&quot;sample_size&quot;, &quot;sample_mean&quot;, &quot;sample_sd&quot;)
+  for(i in 2:n){
+    sample &lt;- rbeta(i, alpha, beta)
+    stats[i-1,] &lt;- c(i, mean(sample), sd(sample))
+  }
+  return(stats)
+}
+df1 &lt;- sample_stats(500, a_post, b_post)
+
+library(ggplot2)
+ggplot(df1, aes(x = sample_size, y = sample_mean)) +
+  geom_point(aes(colour = &quot;Sample Mean&quot;), alpha = 0.4) +
+  geom_line(colour = &quot;#DD141D&quot;, alpha = 0.3) +
+  geom_line(aes(x = sample_size, y = post_mean, colour = &quot;Expected Value of Mean&quot;), size = 1, linetype = 2) +
+  labs(subtitle = &quot;Posterior Mean Convergence to True Value&quot;, x = &quot;Sample Size&quot;, y = &quot;Means&quot;) +
+  scale_color_manual(values = c(&quot;#970E14&quot;, &quot;#DD141D&quot;)) +
+  theme_bw() +
+  theme(legend.position=&quot;bottom&quot;, legend.title = element_blank()) </code></pre>
+<p><img src="/post/Bayesian-Inference/index_files/figure-html/1_a-1.png" width="80%" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>ggplot(df1) +
+  geom_point(aes(x = sample_size, y = sample_sd, colour = &quot;Sample S.D.&quot;), alpha = 0.4) +
+  geom_line(aes(x = sample_size, y = sample_sd), colour = &quot;#3486DF&quot;, alpha = 0.3) +
+  geom_line(aes(x = sample_size, y = post_sd, colour = &quot;Expected Value of S.D.&quot;), size = 1, linetype = 2) +
+  labs(subtitle = &quot;Posterior Standard Deviation Convergence to True Value&quot;, x = &quot;Sample Size&quot;, y = &quot;S.Ds&quot;) +
+  scale_color_manual(values = c(&quot;#113B69&quot;, &quot;#3486DF&quot;)) +
+  theme_bw() +
+  theme(legend.position=&quot;bottom&quot;, legend.title = element_blank()) </code></pre>
+<p><img src="/post/Bayesian-Inference/index_files/figure-html/1_a-2.png" width="80%" style="display: block; margin: auto;" /></p>
+<ol start="2" style="list-style-type: lower-alpha">
+<li>Use simulation (<code>nDraws = 10000</code>) to compute the posterior propability <span class="math inline">\(\text{Pr}(\theta &gt; 0.3|y)\)</span> and compare with the exact value [Hint: <code>pbeta()</code>].</li>
+</ol>
+<p style="color:#00007D;">
+<strong>Answer:</strong>
+</p>
+<p style="color:#00007D;">
+We draw a 10,000 sample from the posterior distribution and calculate the average of how many instances have probability above 0.3 in the whole sample and compare it with the 1-0.3 area
+</p>
+<pre class="r"><code>## B
+set.seed(12345)
+sample_1 &lt;- rbeta(10000, a_post, b_post)
+post     &lt;- mean(sample_1 &gt; 0.3)
+m        &lt;- 1-pbeta(0.3, a_post, b_post)
+cat(&quot;Computed Posteroir:&quot;, post)</code></pre>
+<pre><code>## Computed Posteroir: 0.4392</code></pre>
+<pre class="r"><code>cat(&quot;Exact Probability:&quot;, m)</code></pre>
+<pre><code>## Exact Probability: 0.4399472</code></pre>
+<ol start="3" style="list-style-type: lower-alpha">
+<li>Compute the posterior distribution of the log-odds <span class="math inline">\(\phi = log\left(\frac{\theta}{1 - \theta}\right)\)</span> by simulation (<code>nDraws = 10000</code>). [Hint: <code>hist()</code> and <code>density</code> might come in handy]</li>
+</ol>
+<p style="color:#00007D;">
+<strong>Answer:</strong>
+</p>
+<pre class="r"><code>## C
+nDraws   &lt;- 10000
+set.seed(12345)
+sample_2 &lt;- rbeta(nDraws, a_post, b_post)
+phi      &lt;- log(sample_2 / (1 - sample_2))
+
+ggplot(as.data.frame(phi)) +
+  geom_histogram(aes(x = phi, y=..density..), bins = 40, fill = &quot;#ffffffff&quot;, colour = &quot;black&quot;, size = 0.2) +
+  geom_density(aes(x = phi, y=..density..), colour = &quot;#3486DF&quot;, size = 0.7) +
+  labs(subtitle = &quot;Posterior distribution of the log-odds&quot;,
+       y = &quot;Density&quot;,
+       x = &quot;Log-Odds&quot;, color = &quot;Legend&quot;) +
+  theme_bw()</code></pre>
+<p><img src="/post/Bayesian-Inference/index_files/figure-html/1_c-1.png" width="80%" style="display: block; margin: auto;" /></p>
+</div>
+<div id="log-normal-distribution-and-the-gini-coefficient." class="section level1">
+<h1><em>Log-normal distribution and the Gini coefficient.</em></h1>
+<p>Assume that you have asked 10 randomly selected persons about their monthly income (in thousands Swedish Krona) and obtained the following ten observations: 44, 25, 45, 52, 30, 63, 19, 50, 34 and 67. A common model for non-negative continuous
+variables is the log-normal distribution. The log-normal distribution log <span class="math inline">\(\mathcal{N}(\mu, \sigma^2)\)</span> has density function</p>
+<p><span class="math display">\[p(y|\mu, \sigma^2) = \frac{1}{y \cdot \sqrt{2\pi\sigma^2}} \text{exp}\left[ - \frac{1}{2\sigma^2} (\text{log}(y) - \mu)^2 \right]\]</span></p>
+<p>for <span class="math inline">\(y &gt; 0\)</span>, <span class="math inline">\(\mu &gt; 0\)</span> and <span class="math inline">\(\sigma^2 &gt; 0\)</span>. The log-normal distribution is related to the normal distribution as follows: if <span class="math inline">\(y \sim log \; \mathcal{N}(\mu, \sigma^2)\)</span> then log <span class="math inline">\(y\sim \mathcal{N}(\mu, \sigma^2)\)</span>. Let <span class="math inline">\(y_1,...,y_n|\mu,\sigma^2 \overset{iid}{\sim} log \; \mathcal{N}(\mu, \sigma^2)\)</span>, where <span class="math inline">\(\mu = 3.7\)</span> is assumed to be known but <span class="math inline">\(\sigma^2\)</span> is unknown with non-informative prior <span class="math inline">\(p(\sigma^2) \propto 1/\sigma^2\)</span>. The posterior for <span class="math inline">\(\sigma^2\)</span> is the <span class="math inline">\(Inv-\chi^2(n, \tau^2)\)</span> distribution where</p>
+<p><span class="math display">\[\tau^2 = \frac{\sum_{i=1}^{n} (\text{log} \; y_i - \mu)^2 }{n}.\]</span></p>
+<ol style="list-style-type: lower-alpha">
+<li>Simulate 10,000 draws from the posterior of <span class="math inline">\(\sigma^2\)</span> (assuming <span class="math inline">\(\mu\)</span> = 3.7) and compare with the theoretical <span class="math inline">\(Inv-\chi^2(n, \tau^2)\)</span> posterior distribution.</li>
+</ol>
+<p style="color:#00007D;">
+<strong>Answer:</strong>
+</p>
+<p><span class="math display">\[\color{mycolor}{ PDF = \frac{\tau^v \cdot \frac{v}{2}^{\frac{v}{2}}}{\Gamma (\frac{v}{2})} \cdot x^{-(\frac{v}{2} + 1)} \cdot exp(-\frac{v \cdot \tau^2}{2x})}\]</span></p>
+<pre class="r"><code>######################################################################################
+## Log-normal distribution and the Gini coefficient.
+######################################################################################
+
+## A
+y      &lt;- c(44,25,45,52,30,63,19,50,34,67)
+n      &lt;- length(y)
+mu     &lt;- 3.7
+tau_sq &lt;- sum((log(y)-mu)^2)/n
+nDraws &lt;- 10000
+
+suppressPackageStartupMessages(library(geoR))
+suppressPackageStartupMessages(library(LaplacesDemon))
+
+inv_chi_pdf &lt;- function(x, v, tau_sq){
+  pdf &lt;- (tau_sq^v * (v / 2^(v/2)) / gamma(v / 2)) * (exp((-v * tau_sq) / (2 * x)) / x^(v/2 + 1))
+  return(pdf)
+}
+# inv_chi_pdf &lt;- function(x, v, tau_sq){
+#   pdf &lt;- ((tau_sq * v / 2)^(v/2) / gamma(v / 2)) * (exp((-v * tau_sq) / (2 * x)) / x^(v/2 + 1))
+#   return(pdf)
+# }
+
+X &lt;- seq(0.1, 2, length = nDraws)
+# We can use either the builtin function dinvchisq() in the geoR library or our inv_chi_pdf() to draw the PDF.
+theo_var1 &lt;- geoR::dinvchisq (X, df = n, scale = tau_sq)
+theo_var2 &lt;- LaplacesDemon::dinvchisq (X, df = n, scale = tau_sq)
+theo_var3 &lt;- inv_chi_pdf(X, n, tau_sq)
+# We can also use the rinvchisq() simulation with very large nDraws to draw the PDF withough using dinvchisq() or inv_chi_pdf()
+#X &lt;- rinvchisq(nDraws,n-1)
+
+inv_chi &lt;- function(nDraws, df, tau_sq){
+  chi &lt;- rchisq(nDraws, df)
+  Var &lt;- (df * tau_sq) / chi
+  return(Var)
+}
+post_var &lt;- inv_chi(nDraws, n, tau_sq)
+
+
+df2 &lt;- data.frame(X, post_var, theo_var1, theo_var2)
+
+ggplot(df2) +
+  geom_histogram(aes(x = post_var, y=..density..), bins = 40, fill = &quot;#ffffffff&quot;, colour = &quot;black&quot;, size = 0.2) +
+  geom_density(aes(x = post_var, y=..density.., colour = &quot;Posterior&quot;), size = 0.5) +
+  geom_line(aes(X, y = theo_var2, colour = &quot;Theoretical&quot;), size = 0.5) +
+  labs(subtitle = &quot;Simulated Posterior Distribution in Comparesion with Theoretical Density Distribution&quot;,
+       y = &quot;Density&quot;,
+       x = &quot;Variance&quot;, color = &quot;Legend&quot;) +
+  scale_color_manual(values = c(&quot;#DD141D&quot;, &quot;#3486DF&quot;)) +
+  theme_bw() +
+  theme(legend.position=&quot;bottom&quot;, legend.title = element_blank()) </code></pre>
+<p><img src="/post/Bayesian-Inference/index_files/figure-html/2_a-1.png" width="80%" style="display: block; margin: auto;" /></p>
+<ol start="2" style="list-style-type: lower-alpha">
+<li>The most common measure of income inequality is the Gini coefficient, G, where <span class="math inline">\(0 \leq G \leq 1\)</span>. <span class="math inline">\(G = 0\)</span> means a completely equal income distribution, whereas <span class="math inline">\(G = 1\)</span> means complete income inequality. See Wikipedia for more information. It can be shown that <span class="math inline">\(G = 2\Phi(\sigma/\sqrt{2})-1\)</span> when incomes follow a <span class="math inline">\(\text{log} \;\mathcal{N}(\mu, \sigma^2)\)</span> distribution. <span class="math inline">\(\Phi(z)\)</span> is the cumulative distribution function (CDF) for the standard normal distribution with mean zero and unit variance. Use the posterior draws in a) to compute the posterior distribution of the Gini coefficient G for the current data set.</li>
+</ol>
+<p style="color:#00007D;">
+<strong>Answer:</strong>
+</p>
+<pre class="r"><code>## B
+G &lt;- 2 * pnorm(sqrt(post_var/2)) - 1
+ggplot(as.data.frame(G)) +
+  geom_histogram(aes(x = G, y=..density..), bins = 40, fill = &quot;#ffffffff&quot;, colour = &quot;black&quot;, size = 0.2) +
+  geom_density(aes(x = G, y=..density..), colour = &quot;#DD141D&quot;, size = 0.5) +
+  labs(subtitle = &quot;Gini Index&quot;,
+     y = &quot;Density&quot;,
+     x = &quot;G&quot;) +
+  theme_bw()</code></pre>
+<p><img src="/post/Bayesian-Inference/index_files/figure-html/2_b-1.png" width="80%" style="display: block; margin: auto;" /></p>
+<ol start="3" style="list-style-type: lower-alpha">
+<li>Use the posterior draws from b) to compute a 90% equal tail credible interval for G. A 90% equal tail interval (a, b) cuts off 5% percent of the posterior probability mass to the left of a, and 5% to the right of b. Also, do a kernel density estimate of the posterior of G using the <code>density</code> function in R with default settings, and use that kernel density estimate to compute a 90% Highest Posterior Density interval for G. Compare the two intervals.</li>
+</ol>
+<p style="color:#00007D;">
+<strong>Answer:</strong>
+</p>
+<pre class="r"><code>## C
+# https://stackoverflow.com/questions/4542438/adding-summary-information-to-a-density-plot-created-with-ggplot
+# suppressPackageStartupMessages(library(ggdistribute))
+
+q5  &lt;- quantile(G,.05)
+q95 &lt;- quantile(G,.95)
+dS &lt;- density(G)
+dn &lt;- sort(dS$y/sum(dS$y),index.return=TRUE);
+dnn &lt;- cumsum(dn$x)
+HPDind &lt;- sort(dn$ix[dnn &gt; .1])
+q5_hdi  &lt;- min(dS$x[HPDind])
+q95_hdi &lt;- max(dS$x[HPDind])
+# q5_hdi  &lt;- hdi(G, prob = 0.90, warn = TRUE)[1]
+# q95_hdi &lt;- hdi(G, prob = 0.90, warn = TRUE)[2]
+dens &lt;- density(G)
+G_df &lt;- data.frame(x = dens$x, y = dens$y)
+
+cat(&quot;Equal Tail Interval:&quot;, q5, &quot;-&quot;, q95)</code></pre>
+<pre><code>## Equal Tail Interval: 0.1603999 - 0.3343108</code></pre>
+<pre class="r"><code>cat(&quot;Highest Density Interval:&quot;, q5_hdi, &quot;-&quot;, q95_hdi)</code></pre>
+<pre><code>## Highest Density Interval: 0.1482621 - 0.3153302</code></pre>
+<pre class="r"><code>ggplot(as.data.frame(G)) +
+  geom_histogram(aes(x = G, y = ..density..), bins = 40, fill = &quot;#ffffffff&quot;, colour = &quot;black&quot;, size = 0.2) +
+  geom_density(aes(x = G, y = ..density..), color = &#39;#DD141D&#39;, size = 0.5) +
+  geom_area(data = subset(G_df, x &gt;= q5_hdi &amp; x &lt;= q95_hdi), 
+            aes(x=x,y=y, fill = &#39;HDI&#39;), alpha = 0.2) +
+  geom_area(data = subset(G_df, x &gt;= q5 &amp; x &lt;= q95), 
+              aes(x=x,y=y, fill = &#39;Equal Tail&#39;), alpha = 0.2) +
+  geom_segment(x      = q5,
+               xend   = q5,
+               y      = 0,
+               yend   = approx(x = G_df$x, y = G_df$y, xout = 3.6)$x,
+               colour = &quot;#DD141D&quot;,
+               size   = 0.4,
+               linetype = 2) +
+  geom_segment(x      = q95,
+               xend   = q95,
+               y      = 0,
+               yend   = approx(x = G_df$x, y = G_df$y, xout = 1.25)$x,
+               colour = &quot;#DD141D&quot;,
+               size   = 0.4,
+               linetype = 2) +
+  geom_segment(x      = q5_hdi,
+               xend   = q5_hdi,
+               y      = 0,
+               yend   = approx(x = G_df$x, y = G_df$y, xout = 1.83)$x,
+               colour = &quot;#3486DF&quot;,
+               size   = 0.4,
+               linetype = 2) +
+  geom_segment(x      = q95_hdi,
+               xend   = q95_hdi,
+               y      = 0,
+               yend   = approx(x = G_df$x, y = G_df$y, xout = 1.82)$x,
+               colour = &quot;#3486DF&quot;,
+               size   = 0.4,
+               linetype = 2) +
+  labs(subtitle = &quot;90% Credible Interval&quot;,
+     y = &quot;Density&quot;,
+     x = &quot;G&quot;) +
+  scale_fill_manual(values = c(&quot;#DD141D&quot;, &quot;#3486DF&quot;)) +
+  theme_bw() +
+  theme(legend.position=&quot;bottom&quot;, legend.title = element_blank()) </code></pre>
+<p><img src="/post/Bayesian-Inference/index_files/figure-html/2_c-1.png" width="80%" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>#ggplot(as.data.frame(G), aes(x = G)) +
+   #geom_posterior(ci_width = 0.90, interval_type = &quot;ci&quot;, color = &quot;red&quot;) 
+   #geom_posterior(ci_width = 0.90, interval_type = &quot;hdi&quot;)
+# https://cran.r-project.org/web/packages/ggdistribute/readme/README.html</code></pre>
+</div>
+<div id="bayesian-inference" class="section level1">
+<h1><em>Bayesian Inference</em></h1>
+<p>Bayesian inference for the concentration parameter in the von Mises distribution. This exercise is concerned with directional data. The point is to show you that the posterior distribution for somewhat weird models can be obtained by plotting it over a grid of values. The data points are observed wind directions at a given location on ten different days. The data are recorded in degrees:</p>
+<p><span class="math display">\[(40, 303, 326, 285, 296, 314, 20, 308, 299, 296),\]</span></p>
+<p>where North is located at zero degrees (see Figure 1 on the next page, where the angles are measured clockwise). To fit with Wikipedias description of probability distributions for circular data we convert the data into radians <span class="math inline">\(-\pi \leq y \leq \pi\)</span>. The 10 observations in radians are</p>
+<p><span class="math display">\[(-2.44, 2.14, 2.54, 1.83, 2.02, 2.33, -2.79, 2.23, 2.07, 2.02).\]</span></p>
+<p>Assume that these data points are independent observations following the von Mises distribution</p>
+<p><span class="math display">\[p(y|\mu,\kappa) = \frac{\text{exp}\left[\kappa \cdot \text{cos}(y - \mu) \right]}{2\pi I_o(\kappa)}, -\pi \leq y \leq \pi\]</span></p>
+<p>where <span class="math inline">\(I_0(\kappa)\)</span> is the modified Bessel function of the first kind of order zero [see <code>?besselI</code> in R]. The parameter <span class="math inline">\(\mu (-\pi \leq y \leq \pi)\)</span> is the mean direction and <span class="math inline">\(\kappa &gt; 0\)</span> is called the concentration parameter. Large <span class="math inline">\(\kappa\)</span> gives a small variance around <span class="math inline">\(\mu\)</span>, and vice versa. Assume that <span class="math inline">\(\mu\)</span> is known to be 2.39. Let <span class="math inline">\(\kappa \sim \text{Exponential}(\lambda = 1)\)</span> apriori, where <span class="math inline">\(\lambda\)</span> is the rate parameter of the exponential distribution (so that the
+mean is <span class="math inline">\(1/\lambda\)</span>).</p>
+<ol style="list-style-type: lower-alpha">
+<li>Plot the posterior distribution of <span class="math inline">\(\kappa\)</span> for the wind direction data over a fine grid of <span class="math inline">\(\kappa\)</span> values.</li>
+</ol>
+<p style="color:#00007D;">
+<strong>Answer:</strong>
+</p>
+<p><span class="math display">\[\color{mycolor}{p(\kappa) =\lambda \cdot e^{-\lambda \kappa}}\]</span>
+<span class="math display">\[\color{mycolor}{p(y_i \mid \mu,\kappa) = \prod_{i=1}^{n} \frac{\exp\left(\kappa\cdot cos(y_i-\mu)\right)}{2\pi I_0(\kappa)}= \frac{\exp\left(\sum_{i=1}^{n}\kappa \cdot cos(y_i - \mu)\right)}{\left(2\pi I_0(\kappa)\right)^n}}\]</span></p>
+<p><span class="math display">\[\color{mycolor}{p(\kappa \mid y_1,y_2,...,y_n) \propto \frac{\exp\left(\sum_{i=1}^{n}\kappa \cdot cos(y_i - \mu) - \kappa\right)}{\left(I_0(\kappa)\right)^n}}\]</span></p>
+<pre class="r"><code>######################################################################################
+## Bayesian Inference
+######################################################################################
+
+## A
+y  &lt;- c(-2.44, 2.14, 2.54, 1.83, 2.02, 2.33, -2.79, 2.23, 2.07, 2.02)
+k  &lt;- seq(0.01, 10, by = 0.01)
+
+prior &lt;- function (k, lambda = 1) {
+  return(dexp(k, rate = lambda))
+}
+
+likelihood &lt;- function(data, k, mu = 2.39){
+  n &lt;- length(data)
+  return(exp(k * sum(cos(data-mu))) / (2 * pi * besselI(k, 0))^n)
+}
+
+posterior &lt;- function(data, k, mu = 2.39){
+  n &lt;- length(data)
+  return(exp(k * ((sum(cos(data-mu)) - 1))) / (besselI(k, 0))^n)
+}
+
+prior_data &lt;- prior(k)/sum(prior(k)) 
+like_data  &lt;- likelihood(y,k)/sum(likelihood(y,k))
+post_data  &lt;- posterior(y,k)/sum(posterior(y,k)) 
+wind_df    &lt;- data.frame(k = k, prior = prior_data, likelihood = like_data, posterior = post_data)
+post_mode  &lt;- wind_df[which.max(wind_df$posterior),c(1,4)]
+
+#windowsFonts(Calibri=windowsFont(&quot;Calibri&quot;))
+library(ggplot2)
+ggplot(wind_df)+
+  geom_line(aes(x = k, y = prior, colour = &quot;Prior&quot;), size = 0.5) +
+  geom_line(aes(x = k, y = likelihood, colour = &quot;Likelihood&quot;), size = 0.5) +
+  geom_line(aes(x = k, y = posterior, colour = &quot;Posterior&quot;), size = 0.5) +
+  geom_point(aes(x = post_mode[[1]], y = post_mode[[2]]), color = &quot;#970E14&quot;, size = 1.5, shape = 23, fill = &quot;#DD141D&quot;) +
+  geom_label(aes(x = post_mode[[1]]+1.3, y = post_mode[[2]]+0.0005, label = &quot;Posterior Mode&quot;)) +
+  labs(title = &quot;Prior vs Likelihood vs Posterior&quot;, x = &quot;k&quot;, y = &quot;density&quot;) +
+  scale_colour_manual(breaks = c(&quot;Prior&quot;, &quot;Likelihood&quot;, &quot;Posterior&quot;), values = c(&quot;gray&quot;, &quot;#DD141D&quot;, &quot;#3486DF&quot;)) +
+  theme_bw() +
+  theme(legend.position=&quot;bottom&quot;, legend.title = element_blank()) </code></pre>
+<p><img src="/post/Bayesian-Inference/index_files/figure-html/3_a-1.png" width="80%" style="display: block; margin: auto;" /></p>
+<ol start="2" style="list-style-type: lower-alpha">
+<li>Find the (approximate) posterior mode of <span class="math inline">\(\kappa\)</span> from the information in a).</li>
+</ol>
+<pre class="r"><code>## B
+cat(&quot;Posterior mode:&quot;, post_mode[[1]])</code></pre>
+<pre><code>## Posterior mode: 2.12</code></pre>
+<div class="figure">
+<img src="wind.png" alt="" />
+<p class="caption">The wind direction data. Angles are measured clock-wise starting from North.</p>
+</div>
+</div>
