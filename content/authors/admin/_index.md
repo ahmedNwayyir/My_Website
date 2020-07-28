@@ -14,8 +14,7 @@ email: "nwyyir.ahmed@gmail.com"
 interests:
 - Data Science/AI/ML/DL
 - Finance
-- History
-- Maps
+- Maps and Spatial Analysis
 #organizations:
 #- name: Linköping University
 #  url: ""
