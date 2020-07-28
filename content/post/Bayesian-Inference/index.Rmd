@@ -11,14 +11,16 @@ tags:
   - Bayesian Learning
 subtitle: ''
 summary: ''
-authors: []
+authors: [Admin]
 lastmod: '2020-07-26T18:33:37+02:00'
 featured: no
 image:
   caption: ''
   focal_point: ''
-  preview_only: no
+  preview_only: true
 projects: []
+output:
+  css: style.css
 header-includes: 
   \usepackage{xcolor} 
   \usepackage{float}
