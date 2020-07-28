@@ -4,8 +4,8 @@ external_link: https://github.com/ahmedNwayyir/myFirstRPackage
 image:
   caption: Photo by Toa Heftiba on Unsplash
   focal_point: Smart
-summary: A demo R package that contains only two functions euclidean() and dijkstra() built using Travis CI.
+summary: A demo R package that contains only two functions euclidean() and dijkstra().
 tags:
 - R
-title: Creating R Package
+title: Creating R Package Using Travis CI
 ---
