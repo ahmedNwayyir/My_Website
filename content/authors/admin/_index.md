@@ -13,8 +13,9 @@ education:
 email: "nwyyir.ahmed@gmail.com"
 interests:
 - Data Science/AI/ML/DL
-- Finance
+- Quantitave Finance
 - Maps and Spatial Analysis
+- Data Visualization
 #organizations:
 #- name: Linköping University
 #  url: ""
@@ -33,4 +34,7 @@ user_groups:
 - Visitors
 ---
 
-M.Sc. student in Statistics & Machine Learning with 10 years experience in the intersection between Finance, Supply Chain and Project Control.
+I am a M.Sc. student in Statistics & Machine Learning at Linköping University.
+
+I also worked in the past 10 years in different roles mostly dealing with data analysis in the intersection between Finance, Supply Chain and Project Control.
+
