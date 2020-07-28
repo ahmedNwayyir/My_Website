@@ -12,7 +12,7 @@ education:
     year: 2009
 email: "nwyyir.ahmed@gmail.com"
 interests:
-- Artificial Intelligence
+- Data Science
 - Finance
 - History
 - Maps
