@@ -7,5 +7,5 @@ image:
 summary: A demo R package that contains only two functions euclidean() and dijkstra() built using Travis CI.
 tags:
 - R
-title: My First R Package
+title: Creating R Package
 ---

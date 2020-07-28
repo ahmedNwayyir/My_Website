@@ -14,7 +14,7 @@ summary: A python script that parse through text and give simple stats and gener
 tags:
 - Python
 - Text Mining
-title: Text Extraction Scripts Using Python
+title: Text Extraction Script Using Python
 url_code: ""
 url_pdf: ""
 url_slides: ""
