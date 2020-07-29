@@ -38,9 +38,6 @@ I am a M.Sc. student in Statistics & Machine Learning at Linköping University.
 
 I worked in the past 10 years in different roles mostly dealing with data analysis in the intersection between Finance, Supply Chain and Project Control.
 
-<p style='color:red;'>
-Note: this site is under construction, it's unpolished and some content is still from the hugo academic template.
-</p>
 
 
 
