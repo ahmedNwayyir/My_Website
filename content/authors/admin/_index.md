@@ -4,10 +4,10 @@ authors:
 bio: M.Sc. student in Statistics & Machine Learning with 10 years experience in the intersection between Finance, Supply Chain and Project Control.
 education:
   courses:
-  - course: M.Sc. in Statistics & Machine Learning
-    institution: Linköping University
+  - course: M.Sc. Statistics & Machine Learning
+    institution: Linköping University 
     year: 2021
-  - course: B.Sc. in Pollution & Environment Engineering
+  - course: B.Sc. Pollution & Environment Engineering
     institution: Southern Technical College
     year: 2009
 email: "nwyyir.ahmed@gmail.com"
